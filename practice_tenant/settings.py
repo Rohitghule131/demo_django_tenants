@@ -123,6 +123,10 @@ DATABASE_ROUTERS = (
     'django_tenants.routers.TenantSyncRouter',
 )
 
+REST_FRAMEWORK = {
+    "EXCEPTION_HANDLER": "utilities.utils.custom_exception_handler",
+}
+
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
