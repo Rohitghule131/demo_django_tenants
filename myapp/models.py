@@ -1,16 +1,12 @@
 from django.db import models
 
 
-class DummyModel(models.Model):
+class Book(models.Model):
     """
-    Class for create Dummy model.
+    Class to create model for books.
     """
-    name = models.CharField(max_length=100)
-
-
-class DummyModel2(models.Model):
-    name = models.CharField(max_length=100)
-
-
-class DummyModel3(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=30, null=False, blank=False)
+    author = models.CharField(max_length=30, null=False, blank=False)
+    price = models.FloatField(null=False, blank=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
