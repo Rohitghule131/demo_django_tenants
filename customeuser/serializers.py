@@ -1,48 +1,76 @@
 from rest_framework import serializers
-
+from django.contrib.auth import authenticate
 from .models import CustomUser
 
 
-class SignInUserSerializer(serializers.ModelSerializer):
+class CustomUserSignUpSerializer(serializers.ModelSerializer):
     """
-    Class for serialize the data for creating user object.
+    Serializer class for signing up users.
     """
-    password = serializers.CharField(write_only=True, required=True)
-    confirm_password = serializers.CharField(write_only=True, required=True)
-
     class Meta:
         model = CustomUser
-        fields = ("email", "first_name", "last_name", "username", "password", "confirm_password")
+        fields = ("id", "first_name", "last_name", "email", "phone_no", "password")
+        extra_kwargs = {
+            "password": {"write_only": True}
+        }
 
-    def validate(self, attrs):
+    def validate_password(self, password):
         """
-        Method for validated the data.
+        Function for validating password.
         """
-        password = attrs.get("password")
-        confirm_password = attrs.pop("confirm_password")
+        password_length = len(password)
 
-        if password != confirm_password:
-            raise serializers.ValidationError("Password doesn't matched with the confirm password.")
-
-        return attrs
+        if not 8 <= password_length <= 15:
+            raise serializers.ValidationError("Password length should be between 8 and 15.")
+        return password
 
     def create(self, validated_data):
         """
-        Method for create user object in database.
+        Function for creating and returning the created instance
+        based on the validated data of the user.
         """
-        username = validated_data.pop("username", None)
-        email = validated_data.pop("email", None)
-        password = validated_data.pop("password", None)
-        user = CustomUser.objects.create_user(username, email, password)
+        user = CustomUser.objects.create_user(
+            first_name=validated_data.pop('first_name'),
+            last_name=validated_data.pop('last_name'),
+            email=validated_data.pop('email'),
+            password=validated_data.pop('password'),
+        )
         return user
 
 
-class LoginUserSerializer(serializers.Serializer):
+class UserLoginSerializer(serializers.Serializer):
     """
-    Class for serialize login user data.
+    Class for authorizing user for correct login credentials.
     """
-    email = serializers.EmailField(required=True)
-    password = serializers.CharField(required=True, write_only=True)
+    email = serializers.CharField(required=True)
+    password = serializers.CharField(required=True)
+
+    default_error_messages = {
+        'invalid_credentials': 'Email id or password is invalid.',
+    }
+
+    def update(self, instance, validated_data):
+        pass
+
+    def create(self, validated_data):
+        pass
+
+    def __init__(self, *args, **kwargs):
+        """
+        Constructor Function for initializing UserLoginSerializer.
+        """
+        super(UserLoginSerializer, self).__init__(*args, **kwargs)
+        self.user = None
+
+    def validate(self, attrs):
+        """
+        Function to validate user credentials.
+        """
+        self.user = authenticate(username=attrs.pop("email"), password=attrs.pop('password'))
+        if self.user:
+            return attrs
+        else:
+            raise serializers.ValidationError(self.error_messages['invalid_credentials'])
 
 
 class GetUsersSerializer(serializers.ModelSerializer):

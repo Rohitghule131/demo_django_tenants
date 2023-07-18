@@ -15,6 +15,7 @@ from dotenv import load_dotenv
 from django_tenants.middleware import TenantSubfolderMiddleware, TenantMiddleware, TenantMainMiddleware
 from django_tenants.routers import TenantSyncRouter
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+from datetime import timedelta
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 load_dotenv()
@@ -28,7 +29,10 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
+CORS_ORIGIN_ALLOW_ALL = True
+
+AUTH_USER_MODEL = 'users.CustomUser'
 
 
 # Application definition
@@ -84,6 +88,12 @@ MIDDLEWARE = [
 SHOW_PUBLIC_IF_NO_TENANT_FOUND = True
 
 ROOT_URLCONF = 'practice_tenant.urls'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTIACTION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
 
 TEMPLATES = [
     {
@@ -166,6 +176,29 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = "customeuser.CustomUser"
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Simple JWT for token authentication
+SIMPLE_JWT = {
+
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(weeks=1),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'UPDATE_LAST_LOGIN': True,
+
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
+    'VERIFYING_KEY': None,
+
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
+
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    'TOKEN_TYPE_CLAIM': 'token_type',
+}
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_COOKIE_HTTPONLY = True

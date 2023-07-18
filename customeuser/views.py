@@ -1,81 +1,132 @@
-from rest_framework import (
-                            status,
-                            generics
-                           )
+from rest_framework import status
+from rest_framework.generics import (
+    CreateAPIView,
+    ListAPIView
+)
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.response import Response
-from django.contrib.auth import authenticate
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authentication import (BaseAuthentication, BasicAuthentication, SessionAuthentication)
 
-from .models import (CustomToken, CustomUser)
+from .models import (
+    CustomUser,
+)
 from .serializers import (
-                          GetUsersSerializer,
-                          LoginUserSerializer,
-                          SignInUserSerializer
-                         )
+    GetUsersSerializer,
+    UserLoginSerializer,
+    CustomUserSignUpSerializer
+)
+from utilities.utils import ResponseInfo
+from .utils import get_tokens_for_user
+from utilities import messages
 
 
-class SignUpUserAPIView(generics.CreateAPIView):
+
+class UserSignupAPIView(CreateAPIView):
     """
-    Class for creating api for sign up user.
+    Class to create API for signing up users.
     """
-    permission_classes = ()
     authentication_classes = ()
-    serializer_class = SignInUserSerializer
+    permission_classes = ()
+    serializer_class = CustomUserSignUpSerializer
+
+    def __init__(self, **kwargs):
+        """
+        Constructor function for formatting web response to return.
+        """
+        self.response_format = ResponseInfo().response
+        super(UserSignupAPIView, self).__init__(**kwargs)
 
     def post(self, request, *args, **kwargs):
         """
-        Post Method for sign up user.
+        POST method for registering custom user and generation tokens.
         """
-        signup_serializer = self.get_serializer(data=request.data)
+        user_serializer = self.get_serializer(data=request.data)
+        if user_serializer.is_valid(raise_exception=True):
 
-        if signup_serializer.is_valid(raise_exception=True):
-            signup_serializer.save()
-            return Response({"SUCCESS", status.HTTP_201_CREATED})
+            user = user_serializer.save()
 
-        return Response({status.HTTP_400_BAD_REQUEST})
+            jwt_tokens = get_tokens_for_user(user)
+            response_data = {
+                "user": user_serializer.data,
+                "token": jwt_tokens
+            }
+
+            self.response_format["status_code"] = status.HTTP_201_CREATED
+            self.response_format["data"] = response_data
+            self.response_format["error"] = None
+            self.response_format["messages"] = [messages.CREATED.format("User")]
+
+        return Response(self.response_format)
 
 
-class LoginUserAPIView(ObtainAuthToken, generics.CreateAPIView):
+class UserLoginAPIView(CreateAPIView):
     """
-    Class for create api for user login.
+    Class for creating API view for user login.
     """
-    permission_classes = ()
     authentication_classes = ()
-    serializer_class = LoginUserSerializer
+    permission_classes = ()
+    serializer_class = UserLoginSerializer
+
+    def __init__(self, **kwargs):
+        """
+         Constructor function for formatting the web response to return.
+        """
+        self.response_format = ResponseInfo().response
+        super(UserLoginAPIView, self).__init__(**kwargs)
+
+    def get_queryset(self):
+        """
+        Method to return custom user queryset.
+        """
+        email = self.request.data.get("email")
+        return CustomUser.objects.get(email=email)
 
     def post(self, request, *args, **kwargs):
         """
-        Post method for login user with session authentication.
+        POST Method for validating and logging in the user if valid.
         """
-
-        login_serializer = self.get_serializer(data=request.data)
         try:
-            if login_serializer.is_valid(raise_exception=True):
-                email = login_serializer.validated_data.get("email", None)
-                password = login_serializer.validated_data.get("password", None)
-                user = authenticate(request, **request.data)
-                if user is not None:
-                    token, created_at = CustomToken.objects.get_or_create(email=email, user_id=user.id)
-                    return Response({"Token": token.key})
-                else:
-                    raise Exception("Invalid credential.")
+            user_serializer = self.get_serializer(data=request.data)
+            if user_serializer.is_valid(raise_exception=True):
+                user = self.get_queryset()
+
+                jwt_token = get_tokens_for_user(user,)
+                data = {
+                    "id": user.id,
+                    "token": jwt_token,
+                    "email": user.email,
+                    "first_name": user.first_name,
+                    "last_name": user.last_name,
+                }
+
+                self.response_format["data"] = data
+                self.response_format["error"] = None
+                self.response_format["status_code"] = status.HTTP_200_OK
+                self.response_format["message"] = [messages.LOGIN_SUCCESS]
 
         except CustomUser.DoesNotExist:
-            return Response({"User does not exist."})
+            self.response_format["data"] = None
+            self.response_format["error"] = "user"
+            self.response_format["status_code"] = status.HTTP_404_NOT_FOUND
+            self.response_format["message"] = [messages.UNAUTHORIZED_ACCOUNT]
 
-        except BaseException as e:
-            return Response({"ERROR": "{}".format(e)})
+        return Response(self.response_format)
 
 
-class GetUsersAPIView(generics.ListAPIView):
+
+
+
+class GetUsersAPIView(ListAPIView):
     """
     Class for create list of user api.
     """
     permission_classes = (IsAuthenticated,)
-    authentication_classes = (SessionAuthentication,)
+    authentication_classes = (JWTAuthentication,)
     serializer_class = GetUsersSerializer
+
+    def get_queryset(self):
+        return CustomUser.objects.all()
 
     def get(self, request, *args, **kwargs):
         """
