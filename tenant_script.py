@@ -1,29 +1,34 @@
 from tenant_model.models import ClientModel, DomainModel
 
-# create your public tenant
+# Create your public tenant
+
 tenant = ClientModel(schema_name='public',
                      name='Schemas Inc.',
                      paid_until='2016-12-05',
                      on_trial=False)
 tenant.save()
 
-# Add one or more domains for the tenant
+# Create domain for public tenant
+
 domain = DomainModel()
 domain.domain = 'localhost'  # don't add your port or www here! on a local server you'll want to use localhost here
 domain.tenant = tenant
 domain.is_primary = True
 domain.save()
 
-# create your first real tenant
-tenant = ClientModel(schema_name='tenant2',
-                     name='Tenant 2',
-                     paid_until='2014-12-05',
-                     on_trial=True)
-tenant.save()  # migrate_schemas automatically called, your tenant is ready to be used!
 
-# Add one or more domains for the tenant
-domain = DomainModel()
-domain.domain = 'tenant2'  # don't add your port or www here!
-domain.tenant = tenant
-domain.is_primary = True
-domain.save()
+"""Create your first real tenant"""
+
+# tenant = ClientModel(schema_name='mindbowser',
+#                      name='Mindbowser Inc.',
+#                      paid_until='2023-12-25',
+#                      on_trial=True)
+# tenant.save()  # migrate_schemas automatically called, your tenant is ready to be used!
+
+# Create domain for real tenant
+
+# domain = DomainModel()
+# domain.domain = 'mindbowser.com'  # don't add your port or www here!
+# domain.tenant = tenant
+# domain.is_primary = True
+# domain.save()
