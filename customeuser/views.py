@@ -114,9 +114,6 @@ class UserLoginAPIView(CreateAPIView):
         return Response(self.response_format)
 
 
-
-
-
 class GetUsersAPIView(ListAPIView):
     """
     Class for create list of user api.

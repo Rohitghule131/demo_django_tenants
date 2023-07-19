@@ -32,7 +32,6 @@ DEBUG = True
 ALLOWED_HOSTS = ["*"]
 CORS_ORIGIN_ALLOW_ALL = True
 
-AUTH_USER_MODEL = 'users.CustomUser'
 
 
 # Application definition
@@ -44,7 +43,6 @@ SHARED_APPS = (
     "rest_framework",
 
     'django.contrib.contenttypes',
-
     'django.contrib.auth',
     'django.contrib.sessions',
     'django.contrib.sites',
@@ -58,7 +56,6 @@ TENANT_APPS = (
     "rest_framework",
 
     'django.contrib.contenttypes',
-
     'django.contrib.auth',
     'django.contrib.sessions',
     'django.contrib.sites',
@@ -68,11 +65,6 @@ TENANT_APPS = (
 
 INSTALLED_APPS = list(SHARED_APPS) + [app for app in TENANT_APPS if app not in SHARED_APPS]
 
-TENANT_MODEL = "tenant_model.ClientModel"
-
-TENANT_DOMAIN_MODEL = "tenant_model.DomainModel"
-
-TENANT_SUBFOLDER_PREFIX = "api"
 
 MIDDLEWARE = [
     'django_tenants.middleware.TenantSubfolderMiddleware',
@@ -85,15 +77,18 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-SHOW_PUBLIC_IF_NO_TENANT_FOUND = True
 
 ROOT_URLCONF = 'practice_tenant.urls'
 
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTIACTION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
-}
+AUTH_USER_MODEL = 'customeuser.CustomUser'
+
+TENANT_MODEL = "tenant_model.ClientModel"
+
+TENANT_DOMAIN_MODEL = "tenant_model.DomainModel"
+
+TENANT_SUBFOLDER_PREFIX = "api"
+
+SHOW_PUBLIC_IF_NO_TENANT_FOUND = True
 
 TEMPLATES = [
     {
@@ -111,10 +106,7 @@ TEMPLATES = [
         },
     },
 ]
-
 WSGI_APPLICATION = 'practice_tenant.wsgi.application'
-
-
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
@@ -128,14 +120,18 @@ DATABASES = {
         'PORT': os.environ.get("DB_PORT"),
     }
 }
-
 DATABASE_ROUTERS = (
     'django_tenants.routers.TenantSyncRouter',
 )
-
 REST_FRAMEWORK = {
-    "EXCEPTION_HANDLER": "utilities.utils.custom_exception_handler",
+    'DEFAULT_AUTHENTIACTION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    "EXCEPTION_HANDLER": "utilities.utils.custom_exception_handler"
 }
+
+
+
 
 
 # Password validation
@@ -179,7 +175,6 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-AUTH_USER_MODEL = "customeuser.CustomUser"
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -203,8 +198,3 @@ SIMPLE_JWT = {
     'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
     'TOKEN_TYPE_CLAIM': 'token_type',
 }
-
-SESSION_ENGINE = 'django.contrib.sessions.backends.db'
-SESSION_COOKIE_HTTPONLY = True
-SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-SESSION_COOKIE_NAME = 'my_cookie_name'
