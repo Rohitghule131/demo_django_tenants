@@ -2,6 +2,7 @@ from rest_framework import status
 from rest_framework.generics import (
     ListAPIView,
     CreateAPIView,
+    UpdateAPIView,
 )
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -67,5 +68,44 @@ class ListBooksAPIView(ListAPIView):
         self.response_format["data"] = book_serializer.data
         self.response_format["error"] = None
         self.response_format["message"] = [messages.SUCCESS]
+
+        return Response(self.response_format)
+
+
+class UpdateBooksAPIView(UpdateAPIView):
+    """
+    CLass to create api for an update book.
+    """
+    permission_classes = (IsAuthenticated,)
+    authentication_classes = (JWTAuthentication,)
+    serializer_class = BookSerializer
+
+    def __init__(self, **kwargs):
+        self.response_format = ResponseInfo().response
+        super(UpdateBooksAPIView).__init__(**kwargs)
+
+    def get_queryset(self):
+        book_id = self.kwargs.get("pk")
+        return Book.objects.get(id=book_id)
+
+    def get(self, request, *args, **kwargs):
+        """
+        Get method to get list of books.
+        """
+        try:
+            book_obj = self.get_queryset()
+            book_serializer = self.get_serializer(book_obj, data=request.data, partial=True)
+            if book_serializer.is_valid(raise_exception=True):
+                book_serializer.save()
+                self.response_format["satus_code"] = status.HTTP_200_OK
+                self.response_format["data"] = book_serializer.data
+                self.response_format["error"] = None
+                self.response_format["message"] = [messages.SUCCESS]
+
+        except Book.DoesNotExist:
+            self.response_format["satus_code"] = status.HTTP_200_OK
+            self.response_format["data"] = None
+            self.response_format["error"] = "Book"
+            self.response_format["message"] = [messages.DOES_NOT_EXIST]
 
         return Response(self.response_format)

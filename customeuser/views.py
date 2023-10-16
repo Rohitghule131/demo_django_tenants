@@ -6,7 +6,6 @@ from rest_framework.generics import (
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.authentication import (BaseAuthentication, BasicAuthentication, SessionAuthentication)
 
 from .models import (
     CustomUser,
@@ -19,7 +18,6 @@ from .serializers import (
 from utilities.utils import ResponseInfo
 from .utils import get_tokens_for_user
 from utilities import messages
-
 
 
 class UserSignupAPIView(CreateAPIView):
@@ -112,9 +110,6 @@ class UserLoginAPIView(CreateAPIView):
             self.response_format["message"] = [messages.UNAUTHORIZED_ACCOUNT]
 
         return Response(self.response_format)
-
-
-
 
 
 class GetUsersAPIView(ListAPIView):

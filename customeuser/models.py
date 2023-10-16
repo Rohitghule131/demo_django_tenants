@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from .managers import CustomUserManager
 from django.contrib.auth.models import AbstractUser
@@ -7,6 +8,7 @@ class CustomUser(AbstractUser):
     """
     Class for create model of users
     """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     first_name = models.CharField(max_length=30, null=False, blank=False)
     last_name = models.CharField(max_length=30, null=False, blank=False)
     phone_no = models.CharField(max_length=20, null=True, blank=False)
