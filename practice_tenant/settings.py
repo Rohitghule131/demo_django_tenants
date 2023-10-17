@@ -208,3 +208,6 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_COOKIE_HTTPONLY = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_NAME = 'my_cookie_name'
+
+
+# TEST_RUNNER = "test_runner.CustomTestRunner"

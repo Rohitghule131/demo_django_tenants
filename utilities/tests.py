@@ -1,6 +1,8 @@
+import csv
 from django.urls import reverse
 from django_tenants.test.client import TenantClient
 from django_tenants.test.cases import SubfolderTenantTestCase, TestCase
+from django.test import Client
 
 from customeuser.models import CustomUser
 
@@ -29,7 +31,7 @@ class PrintTestCases:
 print_test = PrintTestCases()
 
 
-class SetUpTestData(SubfolderTenantTestCase, TestCase):
+class SetUpTestData(SubfolderTenantTestCase):
     """
     Class to create dummy test data.
     """
@@ -64,3 +66,4 @@ class SetUpTestData(SubfolderTenantTestCase, TestCase):
         c = TenantClient(self.tenant)
         response = c.post(path, data=payload, content_type="application/json")
         return response.data["data"]
+

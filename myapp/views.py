@@ -36,6 +36,7 @@ class AddBookAPIView(CreateAPIView):
         book_serializer = self.get_serializer(data=request.data)
         if book_serializer.is_valid(raise_exception=True):
             book_serializer.save()
+
             self.response_format["data"] = book_serializer.data
             self.response_format["status_code"] = status.HTTP_201_CREATED
             self.response_format["error"] = None
@@ -88,22 +89,25 @@ class UpdateBooksAPIView(UpdateAPIView):
         book_id = self.kwargs.get("pk")
         return Book.objects.get(id=book_id)
 
-    def get(self, request, *args, **kwargs):
+    def patch(self, request, *args, **kwargs):
         """
-        Get method to get list of books.
+        PATCH method to update the book.
         """
         try:
             book_obj = self.get_queryset()
             book_serializer = self.get_serializer(book_obj, data=request.data, partial=True)
+
             if book_serializer.is_valid(raise_exception=True):
                 book_serializer.save()
+
                 self.response_format["satus_code"] = status.HTTP_200_OK
                 self.response_format["data"] = book_serializer.data
                 self.response_format["error"] = None
                 self.response_format["message"] = [messages.SUCCESS]
 
         except Book.DoesNotExist:
-            self.response_format["satus_code"] = status.HTTP_200_OK
+
+            self.response_format["satus_code"] = status.HTTP_400_BAD_REQUEST
             self.response_format["data"] = None
             self.response_format["error"] = "Book"
             self.response_format["message"] = [messages.DOES_NOT_EXIST]
