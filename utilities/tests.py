@@ -4,7 +4,7 @@ from django_tenants.test.client import TenantClient
 from django_tenants.test.cases import SubfolderTenantTestCase, TestCase
 from django.test import Client
 
-from customeuser.models import CustomUser
+from users.models import CustomUser
 
 
 class PrintTestCases:

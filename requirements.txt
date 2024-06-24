@@ -1,0 +1,11 @@
+asgiref
+Django
+django-tenants
+djangorestframework
+djangorestframework-simplejwt
+postgres
+psycopg2-binary
+psycopg2-pool
+python-dotenv
+pytz
+sqlparse
