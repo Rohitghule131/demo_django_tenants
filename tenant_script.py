@@ -1,10 +1,6 @@
 from tenants.models import TenantModel, DomainModel
-import os, django
 
-# os.environ.setdefault("DJANGO_SETTINGS_MODULE", "myproject.settings")
-# django.setup()
-#
-# # create your public tenant
+# create your public tenant
 # tenant = TenantModel(schema_name='public',
 #                      name='Schemas Inc.',
 #                      paid_until='2016-12-05',
@@ -25,9 +21,10 @@ tenant = TenantModel(schema_name='jupitergroup',
                      on_trial=True)
 tenant.save()  # migrate_schemas automatically called, your tenant is ready to be used!
 
-# # Add one or more domains for the tenant
+# Add one or more domains for the tenant
 domain = DomainModel()
 domain.domain = 'jupiter'  # don't add your port or www here!
 domain.tenant = tenant
 domain.is_primary = True
 domain.save()
+

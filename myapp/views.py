@@ -1,3 +1,5 @@
+import os
+
 from rest_framework import status
 from rest_framework.generics import (
     CreateAPIView,
@@ -178,3 +180,6 @@ class ListAppointmentAPIView(ListAPIView):
         self.response_format["data"] = serializer.data
 
         return Response(self.response_format, status=self.response_format["status_code"])
+
+
+

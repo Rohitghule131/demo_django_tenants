@@ -17,4 +17,5 @@ urlpatterns = [
     path("physician/list", ListPhysicianAPIView.as_view(), name="list-physician"),
     path("appointment/list", ListAppointmentAPIView.as_view(), name="list-appointment"),
     path("patient/list", ListPatientAPIView.as_view(), name="list-patient"),
+
 ]

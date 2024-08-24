@@ -1,10 +1,10 @@
 import uuid
 from django.db import models
 from .managers import CustomUserManager
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractBaseUser
 
 
-class CustomUser(AbstractUser):
+class CustomUser(AbstractBaseUser):
     """
     Class for create model of users
     """
